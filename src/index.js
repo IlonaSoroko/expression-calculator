@@ -24,7 +24,6 @@ function expressionCalculator(expr) {
                 let updatedNumber = doOperation(numbers.pop(), numbers.pop(), operators.pop());
                 numbers.push(updatedNumber);
                 if (operators.length > 0) {
-                    console.log(operators);
                     let previousOperator = operators.pop();
                     let previousOperatorPriority = findPriority(previousOperator);
                     if (previousOperatorPriority >= currentPriority) {
@@ -48,12 +47,15 @@ function expressionCalculator(expr) {
             numbers.push(updatedNumber);
         }
         else {
-            numbers.push(expr[i]);
+            numbers.push(+expr[i]);
             lastNumber = true;
         }
     }
     let result = doOperation(numbers.pop(), numbers.pop(), operators.pop());
-
+    numbers.push(result);
+    if (numbers.length > 1) {
+        result = doOperation(numbers.pop(), numbers.pop(), operators.pop());
+    }
     return result;
 
 
