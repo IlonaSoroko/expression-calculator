@@ -47,6 +47,9 @@ function expressionCalculator(expr) {
             numbers.push(updatedNumber);
         }
         else {
+            if (expr[i] === '0') {
+                throw TypeError("TypeError: Division by zero.");
+            }
             numbers.push(+expr[i]);
             lastNumber = true;
         }
