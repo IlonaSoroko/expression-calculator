@@ -6,42 +6,86 @@ function eval() {
 function expressionCalculator(expr) {
     let numbers = [];
     let operators = [];
+    let PRIORITY = {
+        '+': 1,
+        '-': 1,
+        '*': 2,
+        '/': 2,
+    };
 
-    expr = expr.split('');
+    let lastNumber = false;
+    let lastPriority = 0;
+
+    expr = expr.split(' ').join('');
     for (let i = 0; i < expr.length; i++) {
-        if (expr[i] === " ") {
-            let remove = expr.splice(i, 1);
+        if (isNaN(+expr[i])) {
+            let currentPriority = findPriority(expr[i]);
+            if (lastPriority >= currentPriority) {
+                let updatedNumber = doOperation(numbers.pop(), numbers.pop(), operators.pop());
+                numbers.push(updatedNumber);
+                if (operators.length > 0) {
+                    console.log(operators);
+                    let previousOperator = operators.pop();
+                    let previousOperatorPriority = findPriority(previousOperator);
+                    if (previousOperatorPriority >= currentPriority) {
+                        let firstNumber = numbers.pop();
+                        let secondNumber = numbers.pop();
+                        let updatedNumber = doOperation(firstNumber, secondNumber, previousOperator);
+                        numbers.push(updatedNumber);
+                    }
+                    else {
+                        operators.push(previousOperator);
+                    }
+                }
+            }
+
+            operators.push(expr[i]);
+            lastNumber = false;
+            lastPriority = currentPriority;
         }
-        if (expr[i] === '0') {
-            throw TypeError('TypeError: Division by zero.');
-            break;
-        }
-        if (!isNaN(+expr[i])) {
-            numbers.push(+expr[i]);
+        else if (lastNumber) {
+            let updatedNumber = +(numbers.pop() + expr[i]);
+            numbers.push(updatedNumber);
         }
         else {
-            operators.push(expr[i]);
+            numbers.push(expr[i]);
+            lastNumber = true;
         }
     }
+    let result = doOperation(numbers.pop(), numbers.pop(), operators.pop());
 
-    switch (operators.pop()) {
-        case '+':
-            numbers[numbers.length - 2] = numbers[numbers.length - 2] + numbers.pop();
-            break;
-        case '-':
-            numbers[numbers.length - 2] = numbers[numbers.length - 2] - numbers.pop();
-            break;
-        case '*':
-            numbers[numbers.length - 2] = numbers[numbers.length - 2] * numbers.pop();
-            break;
-        case '/':
-            numbers[numbers.length - 2] = numbers[numbers.length - 2] / numbers.pop();
-            break;
+    return result;
+
+
+    function doOperation(firstNumber, secondNumber, operator) {
+        let result = 0;
+        switch (operator) {
+            case '+':
+                result = secondNumber + firstNumber;
+                break;
+            case '-':
+                result = secondNumber - firstNumber;
+                break;
+            case '*':
+                result = secondNumber * firstNumber;
+                break;
+            case '/':
+                result = secondNumber / firstNumber;
+                break;
+        }
+        return result;
     }
 
 
-    let result = numbers[0];
-    return result;
+    function findPriority(symb) {
+        let priority = 0;
+        for (let key in PRIORITY) {
+            if (key === symb) {
+                priority = PRIORITY[key];
+            }
+        }
+        return priority;
+    }
 }
 
 module.exports = {
